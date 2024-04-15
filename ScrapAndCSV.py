@@ -20,11 +20,15 @@ def get_mcdonalds_in_paris(api_key):
 
         if "results" in data:
             for place in data["results"]:
+                opening_hours = place.get("opening_hours")
+                if opening_hours:
+                    weekday_text = opening_hours.get("weekday_text", ["N/A"])
+                else:
+                    weekday_text = ["N/A"]
                 locations.append({
                     "name": place.get("name"),
                     "address": place.get("formatted_address"),
-                    "lat": place["geometry"]["location"].get("lat"),
-                    "lng": place["geometry"]["location"].get("lng"),
+                    "opening_hours": ", ".join(weekday_text)
                 })
 
         # Check if there is another page of results
@@ -39,7 +43,7 @@ def get_mcdonalds_in_paris(api_key):
 def save_to_csv(data, filename):
     """Saves location data to a CSV file."""
     with open(filename, mode="w", newline="", encoding="utf-8") as file:
-        writer = csv.DictWriter(file, fieldnames=["name", "address", "lat", "lng"])
+        writer = csv.DictWriter(file, fieldnames=["name", "address", "opening_hours"])
         writer.writeheader()
         writer.writerows(data)
 
